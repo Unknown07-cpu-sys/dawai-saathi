@@ -1,0 +1,64 @@
+body {
+  font-family: system-ui, "Segoe UI", Arial, sans-serif;
+  margin: 0;
+  background: #f4f6f8;
+  color: #1c2530;
+}
+
+.safety-banner {
+  background: #fff4d6;
+  border-bottom: 1px solid #e6c766;
+  padding: 10px 24px;
+  font-size: 0.9rem;
+}
+
+.site-header {
+  background: #1f5f8b;
+  color: white;
+  padding: 12px 24px;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+main {
+  max-width: 760px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.card {
+  background: white;
+  border: 1px solid #d9dee3;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.status-list {
+  list-style: none;
+  padding: 0;
+}
+
+.status-list li {
+  margin: 6px 0;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.dot.ok {
+  background: #2e9e5b;
+}

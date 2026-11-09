@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="card">
+  <h2>Server status</h2>
+  <ul class="status-list">
+    <li><span class="dot ok"></span> Server: running</li>
+    <li><span class="dot ok"></span> Database: connected</li>
+    <li>Elder profiles saved: <strong>{{ elder_count }}</strong></li>
+  </ul>
+  <p>Technical check: <a href="/health">/health</a></p>
+</section>
+
+<section class="card">
+  <h2>Milestone 1 of 9: foundation</h2>
+  <p>The server, the database and the tests are in place.
+     The caregiver dashboard (elder profiles and verified medicine schedules) arrives in Milestone 2.</p>
+</section>
+{% endblock %}

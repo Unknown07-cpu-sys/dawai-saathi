@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="safety-banner">
+    Demo prototype with fictional data only. It records what a person <em>reports</em>.
+    It does not verify that any medicine was taken, and it gives no medical advice.
+  </div>
+  <header class="site-header">
+    <h1>{{ app_name }}</h1>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

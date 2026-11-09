@@ -1,0 +1,14 @@
+# Secrets: never upload these
+.env
+
+# Python virtual environment and caches
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# The local database (created automatically; it holds demo data only)
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
