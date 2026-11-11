@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% from "_macros.html" import error %}
+
+{% block title %}{{ elder.name }} - {{ app_name }}{% endblock %}
+
+{% block content %}
+<p><a href="/">&larr; Back to the dashboard</a></p>
+
+{% if notice %}
+<p class="notice" role="status">{{ notice }}</p>
+{% endif %}
+
+<section class="card">
+  <h2>{{ elder.name }}</h2>
+  <dl class="facts">
+    <dt>Addressed as</dt>
+    <dd>{{ elder.address_as }}</dd>
+    <dt>Preferred language</dt>
+    <dd>{{ language_label }}</dd>
+    <dt>Fictional phone</dt>
+    <dd>{{ elder.phone }}</dd>
+    <dt>Caregiver</dt>
+    <dd>{{ elder.caregiver_name }}</dd>
+    <dt>Demonstration consent</dt>
+    <dd>{% if elder.consent_given %}Given. Recorded {{ elder.consent_recorded_at | ist }}{% else %}Not given{% endif %}</dd>
+  </dl>
+</section>
+
+<section class="card" id="medicines">
+  <h2>Medicines</h2>
+  <p class="hint">Shown exactly as the caregiver typed them. Dawai Saathi does not check medicine names,
+     doses or instructions.</p>
+  {% if medicines %}
+  <table class="table">
+    <thead>
+      <tr><th>Medicine name</th><th>Spoken name</th><th>Caregiver-approved instruction</th></tr>
+    </thead>
+    <tbody>
+      {% for medicine in medicines %}
+      <tr>
+        <td>{{ medicine.name }}</td>
+        <td>{{ medicine.spoken_name }}</td>
+        <td class="verbatim">{{ medicine.instruction_text or "" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No medicines yet.</p>
+  {% endif %}
+
+  <h3>Add a medicine</h3>
+  {% if medicine_errors %}
+  <p class="form-error" role="alert">Please fix the messages below. Nothing was saved.</p>
+  {% endif %}
+  <form method="post" action="/elders/{{ elder.id }}/medicines" novalidate>
+    <div class="field">
+      <label for="medicine-name">Medicine name (required)</label>
+      <input type="text" id="medicine-name" name="name" maxlength="100"
+             value="{{ medicine_values.get('name', '') }}">
+      {{ error(medicine_errors, "name") }}
+    </div>
+    <div class="field">
+      <label for="spoken_name">Spoken name (required)</label>
+      <input type="text" id="spoken_name" name="spoken_name" maxlength="100"
+             placeholder="for example BP wali dawa" value="{{ medicine_values.get('spoken_name', '') }}">
+      <p class="hint">The words the reminder will use for this medicine.</p>
+      {{ error(medicine_errors, "spoken_name") }}
+    </div>
+    <div class="field">
+      <label for="instruction_text">Caregiver-approved instruction (optional)</label>
+      <textarea id="instruction_text" name="instruction_text" rows="3"
+                maxlength="1000">{{ medicine_values.get('instruction_text', '') }}</textarea>
+      <p class="hint">Copy it from the caregiver's own notes. It is saved word for word and is never changed.</p>
+      {{ error(medicine_errors, "instruction_text") }}
+    </div>
+    <button type="submit" class="button">Save medicine</button>
+  </form>
+</section>
+
+<section class="card" id="schedule">
+  <h2>Medicine schedule</h2>
+  <p class="hint">"Verified" only means the caregiver says they checked the schedule against the prescription.
+     Dawai Saathi does not check it. An unverified schedule will never be used for reminders.</p>
+  {% if schedule_items %}
+  <table class="table">
+    <thead>
+      <tr><th>Medicine</th><th>Time</th><th>Days</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for item in schedule_items %}
+      <tr class="{{ 'row-verified' if item.verified else 'row-unverified' }}">
+        <td>{{ item.medicine.name }}<br><span class="muted">{{ item.medicine.spoken_name }}</span></td>
+        <td>{{ item.time_of_day }}</td>
+        <td>{{ item.repeat_days | days }}</td>
+        <td>
+          {% if item.verified %}
+          <span class="badge badge-verified">Verified by caregiver</span><br>
+          <span class="muted">{{ item.verified_by }}, {{ item.verified_at | ist }}</span>
+          {% else %}
+          <span class="badge badge-unverified">UNVERIFIED</span><br>
+          <span class="muted">Will not be used for reminders</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No schedule items yet.</p>
+  {% endif %}
+
+  <h3>Add a schedule item</h3>
+  {% if not medicines %}
+  <p class="empty">Add a medicine first. A schedule item belongs to one of this elder's medicines.</p>
+  {% if schedule_errors %}
+  <p class="form-error" role="alert">Nothing was saved. {{ schedule_errors.values() | join(" ") }}</p>
+  {% endif %}
+  {% else %}
+  {% if schedule_errors %}
+  <p class="form-error" role="alert">Please fix the messages below. Nothing was saved.</p>
+  {% endif %}
+  <form method="post" action="/elders/{{ elder.id }}/schedule-items" novalidate>
+    <div class="field">
+      <label for="medicine_id">Medicine (required)</label>
+      <select id="medicine_id" name="medicine_id">
+        <option value="">Choose...</option>
+        {% for medicine in medicines %}
+        <option value="{{ medicine.id }}" {% if schedule_values.get('medicine_id') == medicine.id | string %}selected{% endif %}>{{ medicine.name }} ({{ medicine.spoken_name }})</option>
+        {% endfor %}
+      </select>
+      {{ error(schedule_errors, "medicine_id") }}
+    </div>
+
+    <div class="field">
+      <label for="time_of_day">Reminder time, HH:MM, 24-hour Indian time (required)</label>
+      <input type="text" id="time_of_day" name="time_of_day" maxlength="5" placeholder="08:30"
+             value="{{ schedule_values.get('time_of_day', '') }}">
+      <p class="hint">From 00:00 to 23:59. For example 08:30 or 20:15.</p>
+      {{ error(schedule_errors, "time_of_day") }}
+    </div>
+
+    <fieldset class="field">
+      <legend>Repeat on (required)</legend>
+      <div class="days">
+        {% for number, name in days %}
+        <label class="check">
+          <input type="checkbox" name="repeat_days" value="{{ number }}"
+                 {% if number | string in schedule_values.get('repeat_days', []) %}checked{% endif %}>
+          {{ name }}
+        </label>
+        {% endfor %}
+      </div>
+      {{ error(schedule_errors, "repeat_days") }}
+    </fieldset>
+
+    <div class="field verify-box">
+      <label class="check">
+        <input type="checkbox" id="verified" name="verified" {% if schedule_values.get('verified') %}checked{% endif %}>
+        I have checked this schedule against the prescription and it is correct.
+      </label>
+      <p class="hint">Leave this box empty to save the schedule as UNVERIFIED. It is never ticked for you.</p>
+      <label for="verified_by">Name of the person who checked it (needed only if the box above is ticked)</label>
+      <input type="text" id="verified_by" name="verified_by" maxlength="100"
+             value="{{ schedule_values.get('verified_by', '') }}">
+      {{ error(schedule_errors, "verified_by") }}
+    </div>
+
+    <button type="submit" class="button">Save schedule item</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

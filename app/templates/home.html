@@ -1,19 +1,75 @@
 {% extends "base.html" %}
 
+{% block title %}Dashboard - {{ app_name }}{% endblock %}
+
 {% block content %}
+<section class="stat-grid" aria-label="Totals">
+  <div class="stat">
+    <p class="stat-number" id="stat-elders">{{ summary.elder_count }}</p>
+    <p class="stat-label">Elder profiles</p>
+  </div>
+  <div class="stat">
+    <p class="stat-number" id="stat-medicines">{{ summary.medicine_count }}</p>
+    <p class="stat-label">Medicines</p>
+  </div>
+  <div class="stat">
+    <p class="stat-number" id="stat-schedules">{{ summary.schedule_count }}</p>
+    <p class="stat-label">Schedule items</p>
+    <p class="stat-note">{{ summary.verified_count }} verified, {{ summary.unverified_count }} unverified</p>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Elder profiles</h2>
+    <a class="button" href="/elders/new">Add a new elder</a>
+  </div>
+  {% if rows %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Addressed as</th>
+        <th>Language</th>
+        <th>Caregiver</th>
+        <th>Consent</th>
+        <th>Medicines</th>
+        <th>Schedule items</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td><a href="/elders/{{ row.elder.id }}">{{ row.elder.name }}</a></td>
+        <td>{{ row.elder.address_as }}</td>
+        <td>{{ language_labels.get(row.elder.language, row.elder.language) }}</td>
+        <td>{{ row.elder.caregiver_name }}</td>
+        <td>{% if row.elder.consent_given %}Given{% else %}Not given{% endif %}</td>
+        <td>{{ row.medicine_count }}</td>
+        <td>{{ row.schedule_count }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No elder profiles yet. Add the first fictional profile to begin.</p>
+  {% endif %}
+</section>
+
 <section class="card">
   <h2>Server status</h2>
   <ul class="status-list">
     <li><span class="dot ok"></span> Server: running</li>
     <li><span class="dot ok"></span> Database: connected</li>
-    <li>Elder profiles saved: <strong>{{ elder_count }}</strong></li>
+    <li>Elder profiles saved: <strong>{{ summary.elder_count }}</strong></li>
   </ul>
   <p>Technical check: <a href="/health">/health</a></p>
 </section>
 
 <section class="card">
-  <h2>Milestone 1 of 9: foundation</h2>
-  <p>The server, the database and the tests are in place.
-     The caregiver dashboard (elder profiles and verified medicine schedules) arrives in Milestone 2.</p>
+  <h2>Milestone 2 of 9: caregiver dashboard</h2>
+  <p>Caregivers can add elder profiles, medicines and schedules. Nothing here makes a call,
+     sends a reminder or checks a medicine. A schedule marked unverified will never be used
+     for reminders. Reminders and calls arrive in later milestones.</p>
 </section>
 {% endblock %}

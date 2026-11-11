@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import BASE_DIR, settings
 from app.db import init_db
-from app.routes import health, pages
+from app.routes import elders, health, pages
 
 
 @asynccontextmanager
@@ -27,3 +27,4 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "app" / "static"), name="s
 
 app.include_router(health.router)
 app.include_router(pages.router)
+app.include_router(elders.router)

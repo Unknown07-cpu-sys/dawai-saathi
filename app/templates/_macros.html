@@ -1,0 +1,6 @@
+{# Small pieces shared by the forms. Use:  {% from "_macros.html" import error %} #}
+
+{# The red message under a field, shown only when that field has an error #}
+{% macro error(errors, name) %}
+{% if errors.get(name) %}<p class="field-error" id="{{ name }}-error">{{ errors[name] }}</p>{% endif %}
+{% endmacro %}
